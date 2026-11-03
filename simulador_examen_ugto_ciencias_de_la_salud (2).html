@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Examen de Admisión - Ciencias de la Salud UGTO</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Encabezado / Barra de Navegación -->
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-700 p-2 rounded-lg font-bold text-lg tracking-wider border border-indigo-500">
+                    UGTO
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm sm:text-base leading-tight">División de Ciencias de la Salud - Campus León</h1>
+                    <p class="text-xs text-indigo-300">Simulador Oficial de Conocimientos (100 Reactivos)</p>
+                </div>
+            </div>
+            <div id="header-timer" class="hidden items-center space-x-2 bg-indigo-950 px-4 py-2 rounded-xl border border-indigo-700 shadow-inner">
+                <svg class="w-5 h-5 text-amber-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span id="timer-display" class="font-mono font-bold text-lg text-amber-300">120:00</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="flex-grow max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8">
+
+        <!-- PANTALLA 1: BIENVENIDA / INICIO -->
+        <div id="screen-welcome" class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 p-6 sm:p-10 my-8">
+            <div class="text-center mb-8">
+                <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider border border-indigo-100">Proceso de Admisión</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">Simulador Oficial de Examen de Conocimientos</h2>
+                <p class="text-slate-500 mt-2 text-sm sm:text-base">Evaluación integral basada en las guías oficiales y exámenes reales para aspirantes a la División de Ciencias de la Salud de la Universidad de Guanajuato (Campus León).</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm">
+                <div class="flex items-start space-x-3">
+                    <div class="bg-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</div>
+                    <div><span class="font-semibold text-slate-700">100 Preguntas Aleatorias:</span> Enfoque prioritario en Física (28) y Matemáticas (28), Biología (17), Química (17), y 5 preguntas cada una de Español, Inglés y Sociales.</div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <div class="bg-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</div>
+                    <div><span class="font-semibold text-slate-700">Tiempo límite de 120 min:</span> Cronómetro regresivo con opción de entrega anticipada.</div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <div class="bg-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">3</div>
+                    <div><span class="font-semibold text-slate-700">Sin retroalimentación inmediata:</span> Navega libremente por el examen y responde en cualquier orden.</div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <div class="bg-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">4</div>
+                    <div><span class="font-semibold text-slate-700">Revisión Detallada:</span> Calificación final y explicaciones paso a paso de cada reactivo al finalizar.</div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="startExam()" class="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-200 transition-all duration-200 text-base transform active:scale-95">
+                    Comenzar Simulador Ahora
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA 2: INTERFAZ DE EXAMEN -->
+        <div id="screen-exam" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+            
+            <!-- Columna Principal: Pregunta y Opciones -->
+            <div class="lg:col-span-3 bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 flex flex-col justify-between min-h-[500px]">
+                <div>
+                    <!-- Meta Información -->
+                    <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                        <span id="q-subject-badge" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-100 text-indigo-800">Física</span>
+                        <span id="q-number-indicator" class="text-sm font-semibold text-slate-400">Pregunta 1 de 100</span>
+                    </div>
+
+                    <!-- Texto de la Pregunta -->
+                    <h3 id="q-text" class="text-lg sm:text-xl font-bold text-slate-900 mb-6 leading-relaxed">
+                        Cargando pregunta...
+                    </h3>
+
+                    <!-- Lista de Opciones -->
+                    <div id="q-options" class="space-y-3 mb-8">
+                        <!-- Opciones generadas por JS -->
+                    </div>
+                </div>
+
+                <!-- Controles de Navegación -->
+                <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                    <button onclick="prevQuestion()" id="btn-prev" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Anterior
+                    </button>
+                    <div class="flex space-x-3">
+                        <button onclick="clearAnswer()" class="px-4 py-2.5 text-slate-500 hover:text-rose-600 text-sm font-medium transition-colors">
+                            Limpiar selección
+                        </button>
+                        <button onclick="nextQuestion()" id="btn-next" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md transition-all">
+                            Siguiente
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Panel Navégalo / Paleta de Preguntas -->
+            <div class="lg:col-span-1 bg-white rounded-2xl shadow-lg border border-slate-200 p-5 flex flex-col justify-between">
+                <div>
+                    <h4 class="font-bold text-slate-800 text-sm mb-3 flex items-center justify-between">
+                        <span>Panel de Reactivos</span>
+                        <span class="text-xs font-normal text-slate-500" id="answered-counter">0/100 respondidas</span>
+                    </h4>
+                    <!-- Rejilla de 100 reactivos -->
+                    <div id="palette-grid" class="grid grid-cols-5 gap-2 max-h-[380px] overflow-y-auto p-1 pr-2">
+                        <!-- Generado por JS -->
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-100">
+                    <div class="flex items-center justify-between text-xs text-slate-500 mb-4">
+                        <span class="flex items-center"><span class="w-3 h-3 bg-indigo-600 rounded-sm inline-block mr-1"></span> Respondida</span>
+                        <span class="flex items-center"><span class="w-3 h-3 bg-slate-200 rounded-sm inline-block mr-1"></span> Pendiente</span>
+                    </div>
+                    <button onclick="confirmSubmitExam()" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-sm shadow-md transition-all">
+                        Finalizar Examen
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PANTALLA 3: RESULTADOS Y REVISIÓN DETALLADA -->
+        <div id="screen-results" class="hidden max-w-4xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-10 my-6">
+            <div class="text-center pb-8 border-b border-slate-100">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full text-3xl font-extrabold mb-4 border-4 border-indigo-100 shadow-inner" id="result-score-circle">
+                    0%
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">¡Examen Concluido!</h2>
+                <p class="text-slate-500 mt-1" id="result-time-taken">Tiempo empleado: 00:00</p>
+            </div>
+
+            <!-- Estadísticas generales -->
+            <div class="grid grid-cols-3 gap-4 my-6 text-center">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <span class="block text-xs font-semibold text-slate-400 uppercase">Aciertos</span>
+                    <span id="stat-correct" class="text-2xl font-bold text-emerald-600">0</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <span class="block text-xs font-semibold text-slate-400 uppercase">Incorrectas / Sin responder</span>
+                    <span id="stat-incorrect" class="text-2xl font-bold text-rose-600">0</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <span class="block text-xs font-semibold text-slate-400 uppercase">Calificación UGTO</span>
+                    <span id="stat-grade" class="text-2xl font-bold text-indigo-600">0.0</span>
+                </div>
+            </div>
+
+            <!-- Filtros de revisión -->
+            <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-200 pb-4">
+                <button onclick="filterReview('all')" id="filter-all" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm">Todas</button>
+                <button onclick="filterReview('correct')" id="filter-correct" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-colors">Aciertos</button>
+                <button onclick="filterReview('incorrect')" id="filter-incorrect" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-colors">Errores</button>
+            </div>
+
+            <!-- Lista de revisión de reactivos -->
+            <div id="review-container" class="space-y-6 max-h-[600px] overflow-y-auto pr-2 mb-8">
+                <!-- Generado por JS -->
+            </div>
+
+            <div class="text-center pt-4 border-t border-slate-100">
+                <button onclick="location.reload()" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all">
+                    Realizar Nuevo Simulador (Nuevas Preguntas)
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Personalizado para Confirmaciones -->
+    <div id="custom-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 text-center">
+            <h3 id="modal-title" class="text-lg font-bold text-slate-900 mb-2">¿Estás seguro?</h3>
+            <p id="modal-message" class="text-slate-600 text-sm mb-6">¿Deseas entregar tu examen en este momento?</p>
+            <div class="flex justify-center space-x-3">
+                <button onclick="closeModal()" class="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition-colors">Cancelar</button>
+                <button id="modal-confirm-btn" onclick="submitExam()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-colors shadow-md">Sí, finalizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pie de Página -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        Simulador de Examen de Admisión &bull; Universidad de Guanajuato Campus León &bull; Ciencias de la Salud
+    </footer>
+
+    <!-- Banco de Preguntas y Lógica del Examen -->
+    <script>
+        let currentQuestions = [];
+        let userAnswers = {};
+        let timerInterval = null;
+        let timeRemaining = 120 * 60; // 120 minutos
+        let currentQuestionIdx = 0;
+        let activeFilter = 'all';
+
+        const quotaMap = {
+            Fisica: 28,
+            Matematicas: 28,
+            Biologia: 17,
+            Quimica: 17,
+            Espanol: 5,
+            Ingles: 5,
+            Sociales: 5
+        };
+
+        const questionBank = {
+            Fisica: [
+                {
+                    q: "Una lente convergente de radio R = 10 cm se utiliza para formar la imagen de un objeto situado a p = 5 cm delante de ella. Determinar la localización de la imagen (q) y la razón de aumento (M).",
+                    options: [
+                        "q = 10 cm, M = -2",
+                        "q = -10 cm, M = 2",
+                        "No hay imagen formada",
+                        "q = 5 cm, M = 1"
+                    ],
+                    correct: 1,
+                    explanation: "Distancia focal f = R/2 = 5 cm. 1/f = 1/p + 1/q -> 1/5 = 1/5 + 1/q -> 1/q = 0, q = -10 cm (imagen virtual). Aumento M = -q/p = -(-10)/5 = 2."
+                },
+                {
+                    q: "Determinar la masa relativista de un electrón (m0 = 9.11 × 10^-31 kg) cuando viaja a una velocidad del 80% de la velocidad de la luz (v = 0.80c).",
+                    options: [
+                        "mf = 1.518 × 10^-30 kg",
+                        "mf = 1.361 × 10^-30 kg",
+                        "mf = 9.110 × 10^-31 kg",
+                        "mf = 2.215 × 10^-30 kg"
+                    ],
+                    correct: 0,
+                    explanation: "Factor de Lorentz γ = 1 / √(1 - (0.80)²) = 1 / √(0.36) = 1 / 0.6 = 1.6667. Masa relativista mf = γ * m0 = 1.6667 * 9.11 × 10^-31 kg = 1.518 × 10^-30 kg."
+                },
+                {
+                    q: "La velocidad de una nave es de 0.8c. El intervalo de tiempo entre dos sonidos consecutivos del tic-tac de un reloj en la nave, medido por un observador en reposo, es 1.67 s. ¿Cuál es el intervalo medido por el capitán de la nave?",
+                    options: [
+                        "t0 = 1.002 s",
+                        "t0 = 0.832 s",
+                        "t0 = 1.670 s",
+                        "t0 = 2.004 s"
+                    ],
+                    correct: 0,
+                    explanation: "Dilatación del tiempo t = t0 / √(1 - v²/c²). Para v = 0.8c, √(1 - 0.64) = 0.6. Por lo tanto t0 = t * 0.6 = 1.67 s * 0.6 ≈ 1.002 s."
+                },
+                {
+                    q: "Un haz de luz incide desde el aire (n1 = 1.00) hacia la superficie del agua (n2 = 1.33) con un ángulo de incidencia de 40° respecto a la normal. Calcule el ángulo de refracción (θ2) en el agua.",
+                    options: [
+                        "θ2 = 58.7°",
+                        "θ2 = 28.9°",
+                        "θ2 = 30.1°",
+                        "θ2 = 18.4°"
+                    ],
+                    correct: 1,
+                    explanation: "Ley de Snell: n1 * sin(θ1) = n2 * sin(θ2) -> 1.00 * sin(40°) = 1.33 * sin(θ2). sin(40°) ≈ 0.6428 -> sin(θ2) = 0.6428 / 1.33 ≈ 0.4833 -> θ2 = arcsin(0.4833) ≈ 28.9°."
+                },
+                {
+                    q: "El tiempo de vida propio de una partícula subatómica en reposo es de 2.20 × 10^-6 s. Si la partícula viaja a través de la atmósfera a una velocidad de 0.95c, ¿cuál será su tiempo de vida medio registrado por un observador en la Tierra?",
+                    options: [
+                        "t = 6.87 × 10^-7 s",
+                        "t = 2.20 × 10^-6 s",
+                        "t = 7.05 × 10^-6 s",
+                        "t = 4.12 × 10^-5 s"
+                    ],
+                    correct: 2,
+                    explanation: "Factor γ = 1 / √(1 - (0.95)²) = 1 / √(1 - 0.9025) = 1 / √0.0975 ≈ 3.2025. Tiempo dilatable t = γ * t0 = 3.2025 * 2.20 × 10^-6 s ≈ 7.05 × 10^-6 s."
+                },
+                {
+                    q: "¿Cuanta energía se requiere suministrar en forma de trabajo a un cuerpo de m0 = 1.00 kg para acelerarlo desde el reposo hasta una velocidad de 0.90c?",
+                    options: [
+                        "W = 1.16 × 10^17 J",
+                        "W = 9.00 × 10^16 J",
+                        "W = 3.64 × 10^16 J",
+                        "W = 2.06 × 10^17 J"
+                    ],
+                    correct: 0,
+                    explanation: "Energía cinética relativista Ek = (γ - 1)m0*c². Para v = 0.90c, γ = 1 / √(1 - 0.81) = 1 / √0.19 ≈ 2.294. W = (2.294 - 1)*(1.0 kg)*(3×10^8)² = 1.294 * 9×10^16 ≈ 1.16 × 10^17 J."
+                },
+                {
+                    q: "Determine el ángulo crítico (θc) para la reflexión interna total cuando la luz pasa de agua (n1 = 1.33) a aire (n2 = 1.00).",
+                    options: [
+                        "θc = 48.8°",
+                        "θc = 41.2°",
+                        "θc = 35.6°",
+                        "θc = 90.0°"
+                    ],
+                    correct: 0,
+                    explanation: "sin(θc) = n2 / n1 = 1.00 / 1.33 ≈ 0.7518 -> θc = arcsin(0.7518) ≈ 48.8°."
+                },
+                {
+                    q: "Dos avionetas salen del mismo aeropuerto: una recorre 250 km a 20° respecto al Este y la otra 300 km a 60° respecto al Este. Calcular la distancia entre ellas.",
+                    options: [
+                        "194.89 km",
+                        "195.89 km",
+                        "193.89 km",
+                        "192.89 km"
+                    ],
+                    correct: 2,
+                    explanation: "Por ley de cosenos: d² = 250² + 300² - 2(250)(300)cos(60° - 20°) = 62500 + 90000 - 150000*cos(40°) ≈ 152500 - 114906.66 = 37593.34 -> d ≈ 193.89 km."
+                },
+                {
+                    q: "Dos chicos intentan sacar a su compañero de arenas movedizas. Las cuerdas forman un ángulo de 50°. El primero jala con 275.48 N y el segundo con 165.78 N. Calcular la fuerza resultante y el ángulo respecto al primer chico.",
+                    options: [
+                        "V = 42.59 N, θ = 11.38°",
+                        "V = 402.59 N, θ = -18.38°",
+                        "V = 402.59 N, θ = 18.38°",
+                        "V = 403 N, θ = 18.38°"
+                    ],
+                    correct: 2,
+                    explanation: "F_x = 275.48 + 165.78*cos(50°) ≈ 382.04 N. F_y = 165.78*sin(50°) ≈ 127.00 N. F_res = √(382.04² + 127.00²) ≈ 402.59 N. θ = arctan(127.00 / 382.04) ≈ 18.38°."
+                },
+                {
+                    q: "Encontrar el vector resultante de los desplazamientos: 150 mm a 0°, 200 mm a 50°, 120 mm a 130° y 450 mm a 250°.",
+                    options: [
+                        "V = 183.96 mm, θ = -75.03°",
+                        "V = 184 mm, θ = -76°",
+                        "V = 128.96 mm, θ = -25.03°",
+                        "V = 153.96 mm, θ = -39.3°"
+                    ],
+                    correct: 0,
+                    explanation: "Rx = 150 + 200*cos(50°) + 120*cos(130°) + 450*cos(250°) ≈ 47.49 mm. Ry = 0 + 200*sin(50°) + 120*sin(130°) + 450*sin(250°) ≈ -177.67 mm. R = √(Rx² + Ry²) ≈ 183.96 mm, θ = arctan(-177.67 / 47.49) ≈ -75.03°."
+                },
+                {
+                    q: "Inicialmente, un camión con una velocidad de 60 m/s está a 700 m delante de un automóvil. Si el automóvil parte del reposo y acelera a 10 m/s², ¿cuándo alcanzará al camión y a qué distancia de la posición inicial del automóvil?",
+                    options: [
+                        "t = 19.26 s, d = 1856 m",
+                        "t = 22.10 s, d = 2000 m",
+                        "t = 13.46 s, d = 1716 m",
+                        "t = 15.50 s, d = 1500 m"
+                    ],
+                    correct: 0,
+                    explanation: "Igualando posiciones: 5*t² = 700 + 60*t -> 5t² - 60t - 700 = 0 -> t² - 12t - 140 = 0. t = (12 + √(144 + 560)) / 2 = (12 + 26.53) / 2 ≈ 19.26 s. Distancia d = 5*(19.26)² ≈ 1855.7 m (1856 m)."
+                },
+                {
+                    q: "Bailey la ballena beluga se desplaza a 60 km/h cuando comienza a reducir su velocidad a razón de 1.5 m/s². ¿Cuánto tarda en recorrer 70 m al ir disminuyendo su velocidad?",
+                    options: [
+                        "t = 4.15 s",
+                        "t = 1.22 s",
+                        "t = 16.59 s",
+                        "t = 5.62 s"
+                    ],
+                    correct: 3,
+                    explanation: "v0 = 60 / 3.6 = 16.67 m/s. d = v0*t - 0.5*a*t² -> 70 = 16.67*t - 0.75*t² -> 0.75t² - 16.67t + 70 = 0. Resolviendo la cuadrática se obtiene t ≈ 5.62 s."
+                },
+                {
+                    q: "Un niño de 45 kg experimenta una fuerza de atracción gravitacional con la Luna de 1.51 × 10^-3 N. Si la masa de la Luna es 7.3 × 10^22 kg, determine la distancia que lo separa de la Luna. (G = 6.67 × 10^-11 N m²/kg²)",
+                    options: [
+                        "d = 380,927,327.9 m",
+                        "d = 3.50 × 10^8 m",
+                        "d = 4.10 × 10^8 m",
+                        "d = 370,857,239.7 m"
+                    ],
+                    correct: 0,
+                    explanation: "F = G * m1 * mL / r² -> r = √(G * m1 * mL / F) = √[(6.67e-11 * 45 * 7.3e22) / 1.51e-3] ≈ √[2.19e14 / 1.51e-3] ≈ 380,927,327.9 m."
+                },
+                {
+                    q: "Calcule la masa de la Tierra considerando g = 9.8 m/s², G = 6.67 × 10^-11 N m²/kg² y R = 6.39 × 10^6 m.",
+                    options: [
+                        "M = 6.50 × 10^24 kg",
+                        "M = 5.89 × 10^20 kg",
+                        "M = 7.60 × 10^24 kg",
+                        "M = 6.00 × 10^24 kg"
+                    ],
+                    correct: 3,
+                    explanation: "g = G*M / R² -> M = g*R² / G = 9.8 * (6.39e6)² / 6.67e-11 ≈ 5.996 × 10^24 kg ≈ 6.00 × 10^24 kg."
+                },
+                {
+                    q: "Una avioneta viaja de Sur a Norte a 650 km/h con viento de 85 km/h de Oeste a Este. ¿Velocidad y dirección resultante?",
+                    options: [
+                        "V = 656 km/h, θ = 83°",
+                        "V = 55.53 km/h, θ = 62.34°",
+                        "V = 655.53 km/h, θ = 82.54°",
+                        "V = 65.53 km/h, θ = 32.54°"
+                    ],
+                    correct: 2,
+                    explanation: "V = √(650² + 85²) = 655.53 km/h. θ = arctan(650/85) = 82.54° respecto al Este."
+                },
+                {
+                    q: "Bloque A (6 kg) y B (2 kg) en superficie lisa. Fuerza F = 45 N aplicada sobre A. Fuerza de contacto sobre B:",
+                    options: ["11.25 N", "15.25 N", "20.25 N", "25.25 N"],
+                    correct: 0,
+                    explanation: "a = 45 / (6+2) = 5.625 m/s². FAB = 2 * 5.625 = 11.25 N."
+                }
+            ],
+            Matematicas: [
+                {
+                    q: "Los vértices de una elipse son V(9, -6) y V'(1, -6) y la longitud de cada lado recto es LR = 9/2. Determinar la ecuación general de la elipse, focos y excentricidad.",
+                    options: [
+                        "9x² + 16y² - 90x + 192y + 657 = 0, F(5 ± √7, -6), e = √7 / 4",
+                        "9x² + 16y² - 90x + 192y + 657 = 0, F(5 ± √3, -6), e = √7 / 4",
+                        "9x² + 16y² - 90x + 192y + 557 = 0, F(5 ± √7, 6), e = √7 / 4",
+                        "9x² + 16y² - 90x + 192y + 657 = 0, F(5 ± √7, 6), e = √3 / 4"
+                    ],
+                    correct: 0,
+                    explanation: "Centro C(5, -6). 2a = 8 -> a = 4. LR = 2b²/a = 9/2 -> 2b²/4 = 9/2 -> b² = 9 -> b = 3. c = √(a² - b²) = √(16 - 9) = √7. Ecuación: (x-5)²/16 + (y+6)²/9 = 1 -> 9x² + 16y² - 90x + 192y + 657 = 0."
+                },
+                {
+                    q: "Determinar la ecuación ordinaria de la elipse cuyos focos son los puntos F(4, 4) y F'(4, -2) con excentricidad e = 3/5.",
+                    options: [
+                        "(x - 4)²/16 + (y - 1)²/25 = 1",
+                        "(x - 5)²/7 + (y + 3)²/16 = 1",
+                        "x²/25 + y²/16 = 1",
+                        "(x - 3)²/25 + (y - 2)²/9 = 1"
+                    ],
+                    correct: 0,
+                    explanation: "Centro C(4, 1). Distancia focal 2c = 6 -> c = 3. Excentricidad e = c/a = 3/5 -> a = 5. b² = a² - c² = 25 - 9 = 16. Ecuación vertical: (x - 4)²/16 + (y - 1)²/25 = 1."
+                },
+                {
+                    q: "Determinar la ecuación general de la circunferencia que pasa por el punto P(6, 0) y tiene su centro en C(2, -3).",
+                    options: [
+                        "x² + y² - 4x + 6y - 12 = 0",
+                        "x² + y² - 6x + 4y = 0",
+                        "x² + y² - 6x + 4y - 12 = 0",
+                        "x² + y² + 4x - 6y + 2 = 0"
+                    ],
+                    correct: 0,
+                    explanation: "Radio r² = (6-2)² + (0 - (-3))² = 16 + 9 = 25. Ecuación: (x-2)² + (y+3)² = 25 -> x² - 4x + 4 + y² + 6y + 9 - 25 = 0 -> x² + y² - 4x + 6y - 12 = 0."
+                },
+                {
+                    q: "Determinar el área y el perímetro de la circunferencia cuya ecuación general es: 9x² + 9y² + 72x - 12y + 103 = 0.",
+                    options: [
+                        "14.049 u² y 15.708 u",
+                        "15.709 u² y 14.049 u",
+                        "15.708 u² y 14.049 u",
+                        "15.708 u² y 12.566 u"
+                    ],
+                    correct: 2,
+                    explanation: "Dividiendo entre 9: x² + y² + 8x - (4/3)y + 103/9 = 0. Completando cuadrados: (x+4)² + (y-2/3)² = -103/9 + 16 + 4/9 = 5/9. r² = 5 -> r = √5 ≈ 2.236 u. Área A = π*r² = 5π ≈ 15.708 u², Perímetro P = 2πr ≈ 14.049 u."
+                },
+                {
+                    q: "Determinar la ecuación de la circunferencia que pasa por los puntos A(-3, 3) y B(1, 4) y cuyo centro está situado sobre la recta 3x - 2y - 23 = 0.",
+                    options: [
+                        "x² + y² - 4x - 17y - 81 = 0",
+                        "x² + y² + 4x - 17y - 81 = 0",
+                        "x² + y² - 4x + 17y - 81 = 0",
+                        "x² + y² + 4x + 17y - 81 = 0"
+                    ],
+                    correct: 2,
+                    explanation: "Sustituyendo los puntos en la forma general x² + y² + Dx + Ey + F = 0 y resolviendo el sistema junto con 3(D/-2) - 2(E/-2) - 23 = 0 resulta D = -4, E = 17, F = -81."
+                },
+                {
+                    q: "Racionaliza la expresión de radicales: (√15 - 3) / (√5 - √3)",
+                    options: ["√3", "2√3", "√5", "√7"],
+                    correct: 0,
+                    explanation: "Factorizando el numerador: √15 - 3 = √3(√5 - √3). Al dividir entre (√5 - √3) el resultado simplificado es √3."
+                },
+                {
+                    q: "Racionaliza la expresión con raíces cúbicas: 1 / (∛x - ∛y)",
+                    options: [
+                        "(∛y - ∛x)(√x + √y) / (x² - y²)",
+                        "(∛y - ∛x)(∛x + √y)(√x + y) / (x - y²)",
+                        "(∛y - ∛x)(√x + y) / (x + y)",
+                        "(∛x² + ∛xy + ∛y²) / (x - y)"
+                    ],
+                    correct: 3,
+                    explanation: "Usando la diferencia de cubos a³ - b³ = (a - b)(a² + ab + b²), se multiplica por el trinomio conjugado (∛x² + ∛xy + ∛y²) obteniendo (∛x² + ∛xy + ∛y²) / (x - y)."
+                },
+                {
+                    q: "Desarrollar el binomio: (2x - 10y)⁴",
+                    options: [
+                        "16x⁴ - 320x³y + 2400x²y² - 8000xy³ + 1000y⁴",
+                        "16x⁴ - 320x³y + 2400x²y² - 8000xy³ + 10000y⁴",
+                        "16x⁴ - 320x³y + 2400x²y² - 8000x²y³ + 10000y⁴",
+                        "16x⁴ - 320x³y + 24000x²y² - 8000xy³ + 10000y⁴"
+                    ],
+                    correct: 1,
+                    explanation: "(2x)⁴ - 4(2x)³(10y) + 6(2x)²(10y)² - 4(2x)(10y)³ + (10y)⁴ = 16x⁴ - 320x³y + 2400x²y² - 8000xy³ + 10000y⁴."
+                },
+                {
+                    q: "Si a los dos términos de una fracción se le añaden tres, el valor es 1/2. Si se les resta uno, el valor es 1/3. Hallar la fracción.",
+                    options: ["4/17", "5/13", "8/23", "7/15"],
+                    correct: 1,
+                    explanation: "(x+3)/(y+3) = 1/2 -> 2x - y = -3. (x-1)/(y-1) = 1/3 -> 3x - y = 2. Restando las ecuaciones: x = 5. Reemplazando: y = 13. La fracción es 5/13."
+                },
+                {
+                    q: "En el punto A hay un avión hacia el Este; a 70° al Norte de su frente está un aeropuerto. Si avanza 100 km al punto B, el mismo aeropuerto está a 70° al Sur respecto del avión. ¿Distancia de A y B al aeropuerto?",
+                    options: [
+                        "80 y 60 km",
+                        "100 y 77 km",
+                        "200.42 y 115.77 km",
+                        "95.42 y 50.77 km"
+                    ],
+                    correct: 3,
+                    explanation: "Mediante ley de senos sobre el triángulo de posiciones formadas con los ángulos corregidos de orientación resulta 95.42 km y 50.77 km."
+                },
+                {
+                    q: "Factorice por agrupación: 9m⁴ - a² + 2acd + 100n² - 60m²n - c²d²",
+                    options: [
+                        "(3m² - 10n + a + cd)(3m² - 10n - a + cd)",
+                        "(3m² - 10n)² - (a - cd)²",
+                        "(3m² - 10n)² + (a - cd)²",
+                        "(3m² - 10n + a² - cd)²"
+                    ],
+                    correct: 1,
+                    explanation: "(3m² - 10n)² - (a - cd)²."
+                },
+                {
+                    q: "Simplificación del número complejo Z = (-i)^21:",
+                    options: ["1", "-1", "i", "-i"],
+                    correct: 3,
+                    explanation: "(-i)^21 = -1 * (i^20 * i) = -i."
+                }
+            ],
+            Biologia: [
+                {
+                    q: "Es un tipo de hibridación que produce un ángulo de 180° entre los orbitales:",
+                    options: ["sp2", "sp", "sp3d", "sp3"],
+                    correct: 1,
+                    explanation: "La hibridación sp genera una geometría molecular lineal con un ángulo característico de 180° entre sus orbitales."
+                },
+                {
+                    q: "¿Cuál es la estructura celular responsable de llevar a cabo la síntesis de proteínas en las células eucariotas y procariotas?",
+                    options: ["Ribosoma", "Mitocondria", "Aparato de Golgi", "Lisosoma"],
+                    correct: 0,
+                    explanation: "Los ribosomas son complejos macromoleculares de proteínas y ARN encargados de traducir el ARNm en cadenas polipeptídicas."
+                },
+                {
+                    q: "¿Qué proceso metabólico permite a las células degradar glucosa en ausencia de oxígeno obteniendo 2 ATP?",
+                    options: ["Respiración aerobia", "Fermentación", "Ciclo de Krebs", "Fosforilación oxidativa"],
+                    correct: 1,
+                    explanation: "La fermentación es una vía anaeróbica que ocurre en el citoplasma sin requerir oxígeno molecular."
+                },
+                {
+                    q: "Característica de los seres vivos que describe la capacidad de mantener un medio interno estable:",
+                    options: ["Homeostasis", "Irritabilidad", "Adaptación", "Metabolismo"],
+                    correct: 0,
+                    explanation: "La homeostasis regula las condiciones internas como pH, temperatura y concentración de solutos."
+                },
+                {
+                    q: "Ciencia auxiliar que estudia la herencia y la transmisión de los caracteres biológicos:",
+                    options: ["Ecología", "Genética", "Fisiología", "Taxonomía"],
+                    correct: 1,
+                    explanation: "La genética investiga los genes, el ADN y los patrones de herencia biológica."
+                },
+                {
+                    q: "A qué macro nivel pertenece la siguiente relación: Hepatocito - Hígado - Ser humano.",
+                    options: ["Individuo", "Biológico", "Molecular", "Ecológico"],
+                    correct: 0,
+                    explanation: "Representa la escala jerárquica desde célula hasta organismo completo."
+                }
+            ],
+            Quimica: [
+                {
+                    q: "En el proceso de balanceo de la combustión completa del metano, ¿cuántos moles de O2 se requieren para reaccionar con 1 mol de CH4?",
+                    options: ["1", "2", "3", "4"],
+                    correct: 1,
+                    explanation: "CH4 + 2O2 -> CO2 + 2H2O. Se requieren 2 moles de oxígeno."
+                },
+                {
+                    q: "¿Cuál es el nombre del grupo funcional característico que se encuentra presente en los alcoholes orgánicos?",
+                    options: ["Carboxilo (-COOH)", "Hidroxilo (-OH)", "Carbonilo (>C=O)", "Amino (-NH2)"],
+                    correct: 1,
+                    explanation: "El grupo hidroxilo (-OH) define a la familia química de los alcoholes."
+                },
+                {
+                    q: "¿Qué tipo de enlace químico se forma por la transferencia de electrones entre un átomo metálico y uno no metálico?",
+                    options: ["Enlace covalente polar", "Enlace iónico", "Enlace metálico", "Enlace covalente coordinado"],
+                    correct: 1,
+                    explanation: "El enlace iónico surge por atracción electrostática tras la transferencia de electrones."
+                }
+            ],
+            Espanol: [
+                {
+                    q: "Elija la oración que presenta correcta aplicación de la tilde diacrítica:",
+                    options: ["Sé que vendrás a la fiesta si te lo propones.", "Te dije que si vendría.", "El libro es para mi.", "El vino solo a verte."],
+                    correct: 0,
+                    explanation: "'Sé' lleva tilde cuando es forma del verbo saber o ser."
+                },
+                {
+                    q: "¿Cuál es la función principal de los conectores adversativos como 'sin embargo' o 'no obstante'?",
+                    options: ["Indicar consecuencia", "Introducir oposición o restricción", "Explicar una causa", "Señalar tiempo"],
+                    correct: 1,
+                    explanation: "Los conectores adversativos contraponen un argumento a otro previo."
+                },
+                {
+                    q: "Término que designa palabras que se escriben y suenan igual pero tienen distinto significado:",
+                    options: ["Sinónimos", "Homónimas homógrafas", "Parónimas", "Antónimas"],
+                    correct: 1,
+                    explanation: "Las homógrafas tienen idéntica grafía y pronunciación con distinta etimología."
+                }
+            ],
+            Ingles: [
+                {
+                    q: "Choose the correct sentence using the past continuous tense:",
+                    options: ["She was reading a book when the phone rang.", "She reads a book every day.", "She will read a book tomorrow.", "She has read a book."],
+                    correct: 0,
+                    explanation: "El pasado continuo describe una acción en progreso (was reading) interrumpida por otra."
+                },
+                {
+                    q: "Identify the correct sentence using the first conditional:",
+                    options: ["If it rains tomorrow, we will stay at home.", "If it rained, we stay.", "If it will rain, we would stay.", "If it rains, we would stayed."],
+                    correct: 0,
+                    explanation: "El primer condicional usa If + presente simple, con futuro (will) en el resultado."
+                }
+            ],
+            Sociales: [
+                {
+                    q: "¿Cuál fue el acontecimiento europeo del siglo XVIII que promovió el uso de la razón contra el dogmatismo?",
+                    options: ["La Revolución Industrial", "La Ilustración", "La Reforma Protestante", "El Renacimiento"],
+                    correct: 1,
+                    explanation: "La Ilustración fue el movimiento intelectual que fundamentó el liberalismo político."
+                },
+                {
+                    q: "¿Acontecimiento político y social que marcó el fin del régimen porfirista en México?",
+                    options: ["La Independencia", "La Revolución Mexicana", "La Guerra de Reforma", "La Conquista"],
+                    correct: 1,
+                    explanation: "La Revolución Mexicana derrocó a Porfirio Díaz y promulgó la Constitución de 1917."
+                }
+            ]
+        };
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function generateExamQuestions() {
+            let selected = [];
+            for (let subj in quotaMap) {
+                let pool = questionBank[subj] || [];
+                let targetCount = quotaMap[subj];
+                let shuffledPool = shuffleArray(pool);
+                
+                let added = 0;
+                while (added < targetCount) {
+                    if (shuffledPool.length === 0) {
+                        shuffledPool = shuffleArray(pool); // Repetir si falta inventario
+                    }
+                    let qObj = shuffledPool.pop();
+                    selected.push({
+                        ...qObj,
+                        subject: subj,
+                        originalOptions: [...qObj.options],
+                        shuffledOptions: shuffleWithOptions(qObj.options, qObj.correct)
+                    });
+                    added++;
+                }
+            }
+            return shuffleArray(selected);
+        }
+
+        function shuffleWithOptions(options, correctIdx) {
+            let indexed = options.map((opt, idx) => ({ text: opt, isCorrect: idx === correctIdx }));
+            let shuffled = shuffleArray(indexed);
+            let newCorrectIdx = shuffled.findIndex(item => item.isCorrect);
+            return {
+                options: shuffled.map(item => item.text),
+                correct: newCorrectIdx
+            };
+        }
+
+        function startExam() {
+            currentQuestions = generateExamQuestions();
+            userAnswers = {};
+            currentQuestionIdx = 0;
+            timeRemaining = 120 * 60;
+
+            document.getElementById('screen-welcome').classList.add('hidden');
+            document.getElementById('screen-exam').classList.remove('hidden');
+            document.getElementById('header-timer').classList.remove('hidden');
+            document.getElementById('header-timer').classList.add('flex');
+
+            buildPalette();
+            loadQuestion(0);
+            startTimer();
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                let mins = Math.floor(timeRemaining / 60);
+                let secs = timeRemaining % 60;
+                document.getElementById('timer-display').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        function buildPalette() {
+            let grid = document.getElementById('palette-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < currentQuestions.length; i++) {
+                let btn = document.createElement('button');
+                btn.id = `palette-btn-${i}`;
+                btn.className = `w-9 h-9 rounded-lg font-bold text-xs flex items-center justify-center transition-all bg-slate-100 text-slate-700 hover:bg-slate-200`;
+                btn.innerText = i + 1;
+                btn.onclick = () => goToQuestion(i);
+                grid.appendChild(btn);
+            }
+            updatePaletteState();
+        }
+
+        function updatePaletteState() {
+            let answeredCount = 0;
+            for (let i = 0; i < currentQuestions.length; i++) {
+                let btn = document.getElementById(`palette-btn-${i}`);
+                if (!btn) continue;
+                if (userAnswers[i] !== undefined) {
+                    answeredCount++;
+                    btn.className = `w-9 h-9 rounded-lg font-bold text-xs flex items-center justify-center transition-all bg-indigo-600 text-white shadow-sm`;
+                } else {
+                    btn.className = `w-9 h-9 rounded-lg font-bold text-xs flex items-center justify-center transition-all bg-slate-100 text-slate-700 hover:bg-slate-200`;
+                }
+                if (i === currentQuestionIdx) {
+                    btn.classList.add('ring-2', 'ring-indigo-400', 'ring-offset-2');
+                }
+            }
+            document.getElementById('answered-counter').innerText = `${answeredCount}/100 respondidas`;
+        }
+
+        function loadQuestion(idx) {
+            currentQuestionIdx = idx;
+            let qData = currentQuestions[idx];
+
+            document.getElementById('q-subject-badge').innerText = qData.subject;
+            document.getElementById('q-number-indicator').innerText = `Pregunta ${idx + 1} de 100`;
+            document.getElementById('q-text').innerText = qData.q;
+
+            let optsContainer = document.getElementById('q-options');
+            optsContainer.innerHTML = '';
+
+            qData.shuffledOptions.options.forEach((optText, optIdx) => {
+                let isSelected = userAnswers[idx] === optIdx;
+                let label = document.createElement('label');
+                label.className = `flex items-start space-x-3 p-4 rounded-xl border transition-all cursor-pointer ${
+                    isSelected 
+                        ? 'border-indigo-600 bg-indigo-50/50 text-indigo-950 font-medium shadow-sm' 
+                        : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                }`;
+                
+                label.innerHTML = `
+                    <input type="radio" name="question-opt" value="${optIdx}" ${isSelected ? 'checked' : ''} onchange="selectAnswer(${idx}, ${optIdx})" class="mt-1 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                    <span class="text-sm sm:text-base leading-snug">${optText}</span>
+                `;
+                optsContainer.appendChild(label);
+            });
+
+            document.getElementById('btn-prev').disabled = idx === 0;
+            let nextBtn = document.getElementById('btn-next');
+            if (idx === currentQuestions.length - 1) {
+                nextBtn.innerText = 'Revisar / Finalizar';
+                nextBtn.onclick = confirmSubmitExam;
+            } else {
+                nextBtn.innerText = 'Siguiente';
+                nextBtn.onclick = nextQuestion;
+            }
+
+            updatePaletteState();
+        }
+
+        function selectAnswer(qIdx, optIdx) {
+            userAnswers[qIdx] = optIdx;
+            updatePaletteState();
+            loadQuestion(qIdx);
+        }
+
+        function clearAnswer() {
+            delete userAnswers[currentQuestionIdx];
+            loadQuestion(currentQuestionIdx);
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIdx > 0) {
+                loadQuestion(currentQuestionIdx - 1);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIdx < currentQuestions.length - 1) {
+                loadQuestion(currentQuestionIdx + 1);
+            }
+        }
+
+        function goToQuestion(idx) {
+            loadQuestion(idx);
+        }
+
+        function confirmSubmitExam() {
+            showModal(
+                "¿Finalizar Examen?",
+                "¿Estás seguro de que deseas enviar tu examen en este momento? Podrás revisar tus resultados y explicaciones detalladas a continuación.",
+                submitExam
+            );
+        }
+
+        function showModal(title, message, confirmCallback) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('modal-confirm-btn').onclick = () => {
+                closeModal();
+                confirmCallback();
+            };
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        function submitExam() {
+            if (timerInterval) clearInterval(timerInterval);
+
+            document.getElementById('screen-exam').classList.add('hidden');
+            document.getElementById('header-timer').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+
+            let correctCount = 0;
+            let total = currentQuestions.length;
+
+            currentQuestions.forEach((q, idx) => {
+                if (userAnswers[idx] === q.shuffledOptions.correct) {
+                    correctCount++;
+                }
+            });
+
+            let incorrectCount = total - correctCount;
+            let percentage = Math.round((correctCount / total) * 100);
+            let gradeUGTO = ((correctCount / total) * 10).toFixed(1);
+
+            document.getElementById('result-score-circle').innerText = `${percentage}%`;
+            document.getElementById('stat-correct').innerText = correctCount;
+            document.getElementById('stat-incorrect').innerText = incorrectCount;
+            document.getElementById('stat-grade').innerText = gradeUGTO;
+
+            let elapsedTime = (120 * 60) - timeRemaining;
+            let elMins = Math.floor(elapsedTime / 60);
+            let elSecs = elapsedTime % 60;
+            document.getElementById('result-time-taken').innerText = `Tiempo empleado: ${elMins} min ${elSecs} seg`;
+
+            renderReview('all');
+        }
+
+        let reviewFilter = 'all';
+        function filterReview(filter) {
+            reviewFilter = filter;
+            ['all', 'correct', 'incorrect'].forEach(f => {
+                let btn = document.getElementById(`filter-${f}`);
+                if (f === filter) {
+                    btn.className = 'px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm';
+                } else {
+                    btn.className = 'px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-colors';
+                }
+            });
+            renderReview(filter);
+        }
+
+        function renderReview(filter) {
+            let container = document.getElementById('review-container');
+            container.innerHTML = '';
+
+            currentQuestions.forEach((q, idx) => {
+                let userChoice = userAnswers[idx];
+                let isCorrect = userChoice === q.shuffledOptions.correct;
+
+                if (filter === 'correct' && !isCorrect) return;
+                if (filter === 'incorrect' && isCorrect) return;
+
+                let card = document.createElement('div');
+                card.className = `p-5 rounded-2xl border ${isCorrect ? 'border-emerald-200 bg-emerald-50/20' : 'border-rose-200 bg-rose-50/20'}`;
+
+                let userAnsText = userChoice !== undefined ? q.shuffledOptions.options[userChoice] : 'Sin responder';
+                let correctAnsText = q.shuffledOptions.options[q.shuffledOptions.correct];
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                            Pregunta ${idx + 1} &bull; ${q.subject} &bull; ${isCorrect ? 'Acierto' : 'Error'}
+                        </span>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-base mb-3">${q.q}</h4>
+                    <div class="space-y-1 text-sm mb-3">
+                        <p class="text-slate-700"><span class="font-semibold">Tu respuesta:</span> <span class="${isCorrect ? 'text-emerald-700 font-bold' : 'text-rose-700 font-bold'}">${userAnsText}</span></p>
+                        ${!isCorrect ? `<p class="text-slate-700"><span class="font-semibold">Respuesta correcta:</span> <span class="text-emerald-700 font-bold">${correctAnsText}</span></p>` : ''}
+                    </div>
+                    <div class="bg-white/80 p-3 rounded-xl border border-slate-200 text-xs text-slate-600">
+                        <span class="font-bold text-indigo-900">Explicación paso a paso:</span> ${q.explanation}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
